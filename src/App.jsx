@@ -1,34 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FiGrid, FiHome, FiBook, FiSettings, FiBell } from 'react-icons/fi';
-import { auth } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import CourseCard from './components/CourseCard';
-import Login from './pages/Login';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
-        <div className="text-2xl">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Login />;
-  }
+  const navigate = useNavigate();
 
   const categories = [
     { name: 'All', icon: <FiGrid /> },
@@ -71,9 +47,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-primary">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-5xl font-bold">Invest in your education</h1>
+      <div className="container mx-auto px-4 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-5xl font-bold text-center sm:text-left">Invest in your education</h1>
           <div className="flex gap-4 items-center">
             <button className="p-2 rounded-full hover:bg-gray-100">
               <FiBell className="w-6 h-6" />
@@ -82,19 +58,19 @@ function App() {
               <FiSettings className="w-6 h-6" />
             </button>
             <button 
-              onClick={() => auth.signOut()}
-              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+              onClick={() => navigate('/login')}
+              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
-              Sign Out
+              Se connecter
             </button>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-8 overflow-x-auto">
+        <div className="flex gap-2 sm:gap-4 mb-6 sm:mb-8 overflow-x-auto pb-2">
           {categories.map((category, index) => (
             <button
               key={index}
-              className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+              className={`px-3 sm:px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap ${
                 index === 0 ? 'bg-black text-white' : 'bg-white'
               }`}
             >
@@ -104,8 +80,8 @@ function App() {
           ))}
         </div>
 
-        <h2 className="text-xl font-semibold mb-4">Most popular</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">Most popular</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {courses.map((course, index) => (
             <CourseCard key={index} {...course} />
           ))}
