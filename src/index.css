@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #f8f7f4;
+}
+
+.course-card {
+  @apply rounded-xl p-6 transition-all hover:shadow-lg cursor-pointer;
+}
