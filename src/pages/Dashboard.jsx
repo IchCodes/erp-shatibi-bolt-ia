@@ -11,6 +11,13 @@ import {
   ExclamationTriangleIcon, 
   BuildingLibraryIcon 
 } from '@heroicons/react/24/outline';
+import Home from '../components/dashboard-sections/Home';
+import Students from '../components/dashboard-sections/Students';
+import Users from '../components/dashboard-sections/Users';
+import Scheduling from '../components/dashboard-sections/Scheduling';
+import Attendance from '../components/dashboard-sections/Attendance';
+import Discipline from '../components/dashboard-sections/Discipline';
+import School from '../components/dashboard-sections/School';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -42,25 +49,19 @@ function Dashboard() {
   const renderContent = () => {
     switch (activeSection) {
       case "home":
-        return (
-          <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">
-              Bienvenue {userName ? userName : "sur votre espace personnel"}
-            </h2>
-          </div>
-        );
+        return <Home userName={userName} />;
       case "students":
-        return <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">Section Étudiants</div>;
+        return <Students />;
       case "users":
-        return <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">Section Utilisateurs</div>;
+        return <Users />;
       case "scheduling":
-        return <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">Section Emploi du temps</div>;
+        return <Scheduling />;
       case "attendance":
-        return <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">Section Présences</div>;
+        return <Attendance />;
       case "discipline":
-        return <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">Section Discipline</div>;
+        return <Discipline />;
       case "school":
-        return <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">Section École</div>;
+        return <School />;
       default:
         return null;
     }
@@ -69,48 +70,55 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-primary flex">
       {/* Sidebar */}
-      <div className="w-16 hover:w-64 bg-white shadow-lg p-2 transition-all duration-300 ease-in-out group">
-        <div className="mb-8 overflow-hidden whitespace-nowrap">
-          <h1 className="text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-2">Tableau de bord</h1>
+      <div className="w-16 hover:w-64 bg-white shadow-lg p-2 transition-all duration-300 ease-in-out group flex flex-col justify-between">
+        <div>
+          <div className="mb-8 overflow-hidden whitespace-nowrap">
+            <h1 className="text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-2">Tableau de bord</h1>
+          </div>
+
+          <nav className="space-y-1">
+            {[
+              { name: "Accueil", section: "home", icon: HomeIcon },
+              { name: "Étudiants", section: "students", icon: UserGroupIcon },
+              { name: "Utilisateurs", section: "users", icon: UsersIcon },
+              { name: "Emploi du temps", section: "scheduling", icon: CalendarIcon },
+              { name: "Présences", section: "attendance", icon: ClipboardDocumentCheckIcon },
+              { name: "Discipline", section: "discipline", icon: ExclamationTriangleIcon },
+              { name: "École", section: "school", icon: BuildingLibraryIcon },
+            ].map((item) => (
+              <button
+                key={item.section}
+                onClick={() => handleSectionClick(item.section)}
+                className={`w-full flex items-center px-2 py-2 rounded-lg transition-colors ${
+                  activeSection === item.section
+                    ? "bg-gray-100 font-semibold"
+                    : "hover:bg-gray-50"
+                }`}
+              >
+                <item.icon className="w-5 h-5 min-w-[20px]" />
+                <span className="ml-3 overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  {item.name}
+                </span>
+              </button>
+            ))}
+          </nav>
         </div>
-        <nav className="space-y-1">
-          {[
-            { name: "Accueil", section: "home", icon: HomeIcon },
-            { name: "Étudiants", section: "students", icon: UserGroupIcon },
-            { name: "Utilisateurs", section: "users", icon: UsersIcon },
-            { name: "Emploi du temps", section: "scheduling", icon: CalendarIcon },
-            { name: "Présences", section: "attendance", icon: ClipboardDocumentCheckIcon },
-            { name: "Discipline", section: "discipline", icon: ExclamationTriangleIcon },
-            { name: "École", section: "school", icon: BuildingLibraryIcon },
-          ].map((item) => (
-            <button
-              key={item.section}
-              onClick={() => handleSectionClick(item.section)}
-              className={`w-full flex items-center px-2 py-2 rounded-lg transition-colors ${
-                activeSection === item.section
-                  ? "bg-gray-100 font-semibold"
-                  : "hover:bg-gray-50"
-              }`}
-            >
-              <item.icon className="w-5 h-5 min-w-[20px]" />
-              <span className="ml-3 overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {item.name}
-              </span>
-            </button>
-          ))}
-        </nav>
+
+        <button
+          onClick={handleLogout}
+          className="w-full mt-4 flex items-center px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 min-w-[20px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span className="ml-3 overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            Se déconnecter
+          </span>
+        </button>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-8">
-        <div className="flex justify-end mb-8">
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            Se déconnecter
-          </button>
-        </div>
         {renderContent()}
       </div>
     </div>
