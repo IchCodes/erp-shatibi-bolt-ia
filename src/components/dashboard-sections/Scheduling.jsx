@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getNiveaux, createCours, createClasse, getClasses } from '../../api';
+import { getNiveaux, createCours, createClasse, getClasses, deleteCours, deleteClasse } from '../../api';
 
 export default function Scheduling() {
   const [niveauxCoran, setNiveauxCoran] = useState([]);
@@ -67,6 +67,38 @@ export default function Scheduling() {
     }
   };
 
+  const handleDeleteCours = async () => {
+    if (!selectedNiveau) return;
+    
+    setLoading(true);
+    try {
+      await deleteCours(selectedNiveau);
+      const niveaux = await getNiveaux();
+      setNiveauxCoran(niveaux);
+      setSelectedNiveau('');
+    } catch (err) {
+      setError("Erreur lors de la suppression du cours");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteClasse = async () => {
+    if (!selectedClasse) return;
+    
+    setLoading(true);
+    try {
+      await deleteClasse(selectedClasse);
+      const classes = await getClasses();
+      setClasses(classes);
+      setSelectedClasse('');
+    } catch (err) {
+      setError("Erreur lors de la suppression de la classe");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Section Cours */}
@@ -82,23 +114,54 @@ export default function Scheduling() {
         </div>
         
         <div className="mb-6">
-          <label htmlFor="niveau" className="block text-sm font-medium text-gray-700 mb-2">
-            Sélectionner un niveau
-          </label>
-          <select
-            id="niveau"
-            value={selectedNiveau}
-            onChange={(e) => setSelectedNiveau(e.target.value)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-md"
-            disabled={loading}
-          >
-            <option value="">Sélectionnez un niveau</option>
-            {niveauxCoran.map((niveau) => (
-              <option key={niveau.id} value={niveau.id}>
-                {niveau.nomCours}
-              </option>
+          <div className="flex gap-4 items-end">
+            <div className="flex-grow">
+              <label htmlFor="niveau" className="block text-sm font-medium text-gray-700 mb-2">
+                Sélectionner un niveau
+              </label>
+              <select
+                id="niveau"
+                value={selectedNiveau}
+                onChange={(e) => setSelectedNiveau(e.target.value)}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-md"
+                disabled={loading}
+              >
+                <option value="">Sélectionnez un niveau</option>
+                {niveauxCoran.map((niveau) => (
+                  <option key={niveau.id} value={niveau.id}>
+                    {niveau.nomCours}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {selectedNiveau && (
+              <button
+                onClick={handleDeleteCours}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                disabled={loading}
+              >
+                Supprimer
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Liste des cours */}
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-gray-700 mb-2">Cours existants</h3>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {niveauxCoran.map((cours) => (
+              <div 
+                key={cours.id}
+                className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              >
+                <h4 className="font-medium">{cours.nomCours}</h4>
+                <p className="text-sm text-gray-500">
+                  Type: {cours.type}
+                </p>
+              </div>
             ))}
-          </select>
+          </div>
         </div>
       </div>
 
@@ -115,26 +178,55 @@ export default function Scheduling() {
         </div>
 
         <div className="mb-6">
-          <label htmlFor="classe" className="block text-sm font-medium text-gray-700 mb-2">
-            Sélectionner une classe
-          </label>
-          <select
-            id="classe"
-            value={selectedClasse}
-            onChange={(e) => setSelectedClasse(e.target.value)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-md"
-            disabled={loading}
-          >
-            <option value="">Sélectionnez une classe</option>
-            {classes.map((classe) => (
-              <option key={classe.id} value={classe.id}>
-                {classe.nomClasse}
-              </option>
-            ))}
-          </select>
+          <div className="flex gap-4 items-end">
+            <div className="flex-grow">
+              <label htmlFor="classe" className="block text-sm font-medium text-gray-700 mb-2">
+                Sélectionner une classe
+              </label>
+              <select
+                id="classe"
+                value={selectedClasse}
+                onChange={(e) => setSelectedClasse(e.target.value)}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-md"
+                disabled={loading}
+              >
+                <option value="">Sélectionnez une classe</option>
+                {classes.map((classe) => (
+                  <option key={classe.id} value={classe.id}>
+                    {classe.nomClasse}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {selectedClasse && (
+              <button
+                onClick={handleDeleteClasse}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                disabled={loading}
+              >
+                Supprimer
+              </button>
+            )}
+          </div>
         </div>
 
-        
+        {/* Liste des classes */}
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-gray-700 mb-2">Classes existantes</h3>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {classes.map((classe) => (
+              <div 
+                key={classe.id}
+                className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              >
+                <h4 className="font-medium">{classe.nomClasse}</h4>
+                <p className="text-sm text-gray-500">
+                  {classe.cours.length} cours associés
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {loading && (

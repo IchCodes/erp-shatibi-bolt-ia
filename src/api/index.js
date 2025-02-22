@@ -72,3 +72,35 @@ export async function getClasses() {
         throw error;
     }
 }
+
+export async function deleteCours(coursId) {
+    const url = `${import.meta.env.VITE_BASE_URL}/cours/${coursId}`;
+    const token = await auth.currentUser.getIdToken();
+    const config = {
+        headers: { 'Authorization': `Bearer ${token}` }
+    };
+
+    try {
+        const response = await axios.delete(url, config);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export async function deleteClasse(classeId) {
+    const url = `${import.meta.env.VITE_BASE_URL}/classes/${classeId}`;
+    const token = await auth.currentUser.getIdToken();
+    const config = {
+        headers: { 'Authorization': `Bearer ${token}` }
+    };
+
+    try {
+        const response = await axios.delete(url, config);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
