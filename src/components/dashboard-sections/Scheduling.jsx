@@ -159,6 +159,9 @@ export default function Scheduling() {
                 <p className="text-sm text-gray-500">
                   Type: {cours.type}
                 </p>
+                <p className="text-sm text-gray-500">
+                  Profs: {cours.professeurs.map(prof => prof.nom + ' ' + prof.prenom).join(', ')}
+                </p>
               </div>
             ))}
           </div>
