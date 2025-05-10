@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Cookies from 'universal-cookie';
 
@@ -6,9 +6,7 @@ const Scheduling = () => {
   const { user, role, loading } = useAuth();
   const [schedule, setSchedule] = useState([]);
   const cookies = new Cookies();
-  console.log("user", user);
 
-  // Fonction pour traduire les jours en français
   const translateDay = (day) => {
     const translations = {
       "SUNDAY": "Dimanche",
@@ -24,20 +22,19 @@ const Scheduling = () => {
 
   useEffect(() => {
     const fetchSchedule = async () => {
-      if (role === "ELEVE") {
+      if (role === "ELEVE" || role === "PROFESSEUR") {
         try {
           const token = cookies.get('token');
-          console.log("Token:", token);
-          const response = await fetch(
-            `http://localhost:8080/api/emploi-du-temps/eleve/${user.id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const url = role === "ELEVE" 
+            ? `http://localhost:8080/api/emploi-du-temps/eleve/${user.id}`
+            : `http://localhost:8080/api/emploi-du-temps/professeur/${user.id}`;
+          
+          const response = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           const data = await response.json();
-          console.log("Emploi du temps:", data);
           setSchedule(data);
         } catch (error) {
           console.error(
@@ -57,7 +54,6 @@ const Scheduling = () => {
     return <div>Chargement...</div>;
   }
 
-  // Fonction pour trier les cours par jour et heure
   const sortedSchedule = [...schedule].sort((a, b) => {
     const days = [
       "SUNDAY",
@@ -73,7 +69,6 @@ const Scheduling = () => {
     return a.heureDebut.localeCompare(b.heureDebut);
   });
 
-  // Regrouper les cours par jour
   const scheduleByDay = sortedSchedule.reduce((acc, course) => {
     if (!acc[course.jour]) {
       acc[course.jour] = [];
@@ -96,15 +91,24 @@ const Scheduling = () => {
                 <div key={index} className="bg-gray-50 p-3 rounded-md">
                   <div className="flex justify-between items-start">
                     <div className="font-medium text-gray-900">
-                      {course.matiere}
+                      {role === "ELEVE" ? course.matiere : course.matiereNom}
                     </div>
                     <div className="text-sm text-gray-600">
                       {course.heureDebut} - {course.heureFin}
                     </div>
                   </div>
                   <div className="mt-2 text-sm text-gray-600">
-                    <p>Salle: {course.salle}</p>
-                    <p>Enseignant: {course.enseignant}</p>
+                    {role === "ELEVE" ? (
+                      <>
+                        <p>Salle: {course.salle}</p>
+                        <p>Enseignant: {course.enseignant}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p>Classe: {course.classeNom}</p>
+                        <p>Salle: {course.salleNom}</p>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
