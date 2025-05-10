@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';``
+import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { 
@@ -24,6 +25,7 @@ function Dashboard() {
   const [userName, setUserName] = React.useState("");
   const [activeSection, setActiveSection] = React.useState("home");
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const { user,role, loading } = useAuth();
 
   React.useEffect(() => {
     const user = auth.currentUser;
@@ -67,6 +69,35 @@ function Dashboard() {
     }
   };
 
+  const getMenuItems = () => {
+    const allItems = [
+      { name: "Accueil", section: "home", icon: HomeIcon },
+      { name: "Étudiants", section: "students", icon: UserGroupIcon },
+      { name: "Utilisateurs", section: "users", icon: UsersIcon },
+      { name: "Emploi du temps", section: "scheduling", icon: CalendarIcon },
+      { name: "Présences", section: "attendance", icon: ClipboardDocumentCheckIcon },
+      { name: "Discipline", section: "discipline", icon: ExclamationTriangleIcon },
+      { name: "École", section: "school", icon: BuildingLibraryIcon },
+    ];
+
+    switch (role) {
+      case "PROFESSEUR":
+        return allItems.filter(item => 
+          ["home", "scheduling", "attendance"].includes(item.section)
+        );
+      case "ELEVE":
+        return allItems.filter(item => 
+          ["home", "scheduling"].includes(item.section)
+        );
+      case "ADMIN":
+        return allItems;
+      default:
+        return [];
+    }
+  };
+
+  if (loading) return <div>Chargement...</div>;
+
   return (
     <div className="min-h-screen bg-primary flex">
       {/* Sidebar */}
@@ -77,15 +108,7 @@ function Dashboard() {
           </div>
 
           <nav className="space-y-1">
-            {[
-              { name: "Accueil", section: "home", icon: HomeIcon },
-              { name: "Étudiants", section: "students", icon: UserGroupIcon },
-              { name: "Utilisateurs", section: "users", icon: UsersIcon },
-              { name: "Emploi du temps", section: "scheduling", icon: CalendarIcon },
-              { name: "Présences", section: "attendance", icon: ClipboardDocumentCheckIcon },
-              { name: "Discipline", section: "discipline", icon: ExclamationTriangleIcon },
-              { name: "École", section: "school", icon: BuildingLibraryIcon },
-            ].map((item) => (
+            {getMenuItems().map((item) => (
               <button
                 key={item.section}
                 onClick={() => handleSectionClick(item.section)}
