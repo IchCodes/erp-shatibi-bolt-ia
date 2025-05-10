@@ -32,6 +32,7 @@ function Dashboard() {
     if (user?.displayName) {
       setUserName(user.displayName);
     }
+    console.log(role)
   }, []);
 
   const handleLogout = async () => {

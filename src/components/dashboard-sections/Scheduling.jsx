@@ -32,6 +32,7 @@ export default function Scheduling() {
   useEffect(() => {
     Promise.all([getNiveaux(), getClasses(), getProfesseurs()])
       .then(([niveaux, classes, profs]) => {
+        console.log(classes);
         setNiveauxCoran(niveaux);
         setClasses(classes);
         setProfesseurs(profs);
@@ -296,9 +297,7 @@ export default function Scheduling() {
                 className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
                 <h4 className="font-medium">{classe.nomClasse}</h4>
-                <p className="text-sm text-gray-500">
-                  {classe.cours.length} cours associés
-                </p>
+                
               </div>
             ))}
           </div>
