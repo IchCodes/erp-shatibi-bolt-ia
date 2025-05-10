@@ -15,10 +15,10 @@ import {
 import Home from '../components/dashboard-sections/Home';
 import Students from '../components/dashboard-sections/Students';
 import Users from '../components/dashboard-sections/Users';
-import Scheduling from '../components/dashboard-sections/Scheduling';
 import Attendance from '../components/dashboard-sections/Attendance';
 import Discipline from '../components/dashboard-sections/Discipline';
 import School from '../components/dashboard-sections/School';
+import Scheduling from '../components/dashboard-sections/Scheduling';
 
 function Dashboard() {
   const navigate = useNavigate();

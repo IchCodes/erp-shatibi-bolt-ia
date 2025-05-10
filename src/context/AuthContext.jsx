@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       console.log(data)
       setRole(data.role);
+      setUser(data);
       cookies.set('role', data.role, { path: '/', maxAge: 3600 }); // 1h
     } catch (err) {
       console.error('Erreur lors de la récupération du rôle :', err);
