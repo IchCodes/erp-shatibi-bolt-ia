@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 const PointageCoursActuel = () => {
   const now = moment();
   const [coursActuel, setCoursActuel] = useState(null);
+  const [tousLesCours, setTousLesCours] = useState([]);
   const [eleves, setEleves] = useState([]);
   const [pointage, setPointage] = useState({});
   const { user, role, loading } = useAuth();
@@ -31,33 +32,17 @@ const PointageCoursActuel = () => {
           item.jour === now.format('dddd').toUpperCase()
         );
 
+        setTousLesCours(coursDuJour);
+
         const actuel = coursDuJour.find((item) => {
           const debut = moment(item.heureDebut, 'HH:mm:ss');
           const fin = moment(item.heureFin, 'HH:mm:ss');
-          console.log("couurs du jour", coursDuJour);
-
           return now.isBetween(debut, fin);
         });
-        console.log("cours actuel", actuel);
 
         if (actuel) {
           setCoursActuel(actuel);
-          const { data: elevesClasse } = await axios.get(
-            `http://localhost:8080/api/classes/${actuel.classeId}/eleves`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          setEleves(elevesClasse);
-
-          const initPointage = {};
-          elevesClasse.forEach((e) => {
-            initPointage[e.id] = 'PRESENT';
-          });
-          setPointage(initPointage);
+          await fetchEleves(actuel.classeId, token);
         }
       } catch (err) {
         console.error('Erreur récupération cours ou élèves :', err);
@@ -66,6 +51,45 @@ const PointageCoursActuel = () => {
 
     if (!loading) fetchCoursEtEleves();
   }, [user, role, loading]);
+
+  const fetchEleves = async (classeId, token) => {
+    try {
+      const { data: elevesClasse } = await axios.get(
+        `http://localhost:8080/api/classes/${classeId}/eleves`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setEleves(elevesClasse);
+      const initPointage = {};
+      elevesClasse.forEach((e) => {
+        initPointage[e.id] = 'PRESENT';
+      });
+      setPointage(initPointage);
+    } catch (err) {
+      console.error('Erreur récupération élèves :', err);
+    }
+  };
+
+  const handleCoursChange = async (e) => {
+    const coursId = e.target.value;
+    if (coursId === '') {
+      setCoursActuel(null);
+      setEleves([]);
+      setPointage({});
+      return;
+    }
+    
+    const cours = tousLesCours.find(c => c.emploiDuTempsId === parseInt(coursId));
+    if (cours) {
+      setCoursActuel(cours);
+      const token = cookies.get('token');
+      await fetchEleves(cours.classeId, token);
+    }
+  };
 
   const toggleStatut = (eleveId) => {
     setPointage((prev) => ({
@@ -100,38 +124,57 @@ const PointageCoursActuel = () => {
     }
   };
 
-  if (!coursActuel) return <p className="p-4">Aucun cours en cours actuellement.</p>;
-
   return (
     <div className="p-4 max-w-2xl mx-auto bg-white shadow rounded">
-      <h2 className="text-xl font-bold mb-4">
-        Pointage - {coursActuel.matiereNom} avec {coursActuel.classeNom}
-      </h2>
-      <ul className="divide-y">
-        {eleves.map((eleve) => (
-          <li key={eleve.id} className="py-2 flex justify-between items-center">
-            <span>
-              {eleve.prenom} {eleve.nom}
-            </span>
-            <button
-              onClick={() => toggleStatut(eleve.id)}
-              className={`px-3 py-1 rounded text-white ${
-                pointage[eleve.id] === 'ABSENT' ? 'bg-red-500' : 'bg-green-500'
-              }`}
-            >
-              {pointage[eleve.id]}
-            </button>
-          </li>
-        ))}
-      </ul>
-      <div className="mt-6 text-right">
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+      <div className="mb-4">
+        <select 
+          onChange={handleCoursChange}
+          className="w-full p-2 border rounded"
+          value={coursActuel?.emploiDuTempsId || ''}
         >
-          Valider le pointage
-        </button>
+          <option value="">Sélectionner un cours</option>
+          {tousLesCours.map((cours) => (
+            <option key={cours.emploiDuTempsId} value={cours.emploiDuTempsId}>
+              {cours.matiereNom} - {cours.classeNom} ({cours.heureDebut} - {cours.heureFin})
+            </option>
+          ))}
+        </select>
       </div>
+
+      {coursActuel ? (
+        <>
+          <h2 className="text-xl font-bold mb-4">
+            Pointage - {coursActuel.matiereNom} avec {coursActuel.classeNom}
+          </h2>
+          <ul className="divide-y">
+            {eleves.map((eleve) => (
+              <li key={eleve.id} className="py-2 flex justify-between items-center">
+                <span>
+                  {eleve.prenom} {eleve.nom}
+                </span>
+                <button
+                  onClick={() => toggleStatut(eleve.id)}
+                  className={`px-3 py-1 rounded text-white ${
+                    pointage[eleve.id] === 'ABSENT' ? 'bg-red-500' : 'bg-green-500'
+                  }`}
+                >
+                  {pointage[eleve.id]}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 text-right">
+            <button
+              onClick={handleSubmit}
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            >
+              Valider le pointage
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="p-4">Aucun cours sélectionné.</p>
+      )}
     </div>
   );
 };
