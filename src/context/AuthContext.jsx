@@ -21,8 +21,8 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       console.log(data)
       setRole(data.role);
-      setUser(data);
-      cookies.set('role', data.role, { path: '/', maxAge: 3600 }); // 1h
+      setUser(data); // On garde les données du backend
+      cookies.set('role', data.role, { path: '/', maxAge: 3600 });
     } catch (err) {
       console.error('Erreur lors de la récupération du rôle :', err);
     }
@@ -32,9 +32,8 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const token = await getIdToken(firebaseUser);
-        cookies.set('token', token, { path: '/', maxAge: 3600 }); // 1h
-        setUser(firebaseUser);
-        await fetchRole(token);
+        cookies.set('token', token, { path: '/', maxAge: 3600 });
+        await fetchRole(token); // On ne met plus à jour user avec firebaseUser
       } else {
         setUser(null);
         setRole(null);

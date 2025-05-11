@@ -27,13 +27,6 @@ function Dashboard() {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { user,role, loading } = useAuth();
 
-  React.useEffect(() => {
-    const user = auth.currentUser;
-    if (user?.displayName) {
-      setUserName(user.displayName);
-    }
-    console.log(role)
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -52,7 +45,7 @@ function Dashboard() {
   const renderContent = () => {
     switch (activeSection) {
       case "home":
-        return <Home userName={userName} />;
+        return <Home userName={user} />;
       case "students":
         return <Students />;
       case "users":
