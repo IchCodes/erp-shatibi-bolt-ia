@@ -22,10 +22,17 @@ import Scheduling from '../components/dashboard-sections/Scheduling';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [userName, setUserName] = React.useState("");
-  const [activeSection, setActiveSection] = React.useState("home");
-  const [isExpanded, setIsExpanded] = React.useState(false);
   const { user,role, loading } = useAuth();
+  const [userName, setUserName] = React.useState("");
+  const [activeSection, setActiveSection] = React.useState(role === "PROFESSEUR" ? "attendance" : "home");
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  
+   React.useEffect(() => {
+    if (!loading && role === "PROFESSEUR") {
+      setActiveSection("attendance");
+    }
+  }, [loading, role]);
+  console.log("User role:", role);
 
 
   const handleLogout = async () => {
