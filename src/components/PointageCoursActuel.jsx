@@ -5,7 +5,7 @@ import moment from 'moment';
 import { useAuth } from '../context/AuthContext';
 
 const PointageCoursActuel = () => {
-  const now = moment();
+  const now = moment('2025-05-18 15:30:00');
   const [coursActuel, setCoursActuel] = useState(null);
   const [tousLesCours, setTousLesCours] = useState([]);
   const [eleves, setEleves] = useState([]);
@@ -20,7 +20,7 @@ const PointageCoursActuel = () => {
         if (!user?.id || role !== 'PROFESSEUR') return;
 
         const { data: emploiDuTemps } = await axios.get(
-          `http://localhost:8080/api/emploi-du-temps/professeur/${user.id}`,
+          `${import.meta.env.VITE_BASE_URL}/api/emploi-du-temps/professeur/${user.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -35,8 +35,9 @@ const PointageCoursActuel = () => {
         setTousLesCours(coursDuJour);
 
         const actuel = coursDuJour.find((item) => {
-          const debut = moment(item.heureDebut, 'HH:mm:ss');
-          const fin = moment(item.heureFin, 'HH:mm:ss');
+          const aujourdhui = now.format('YYYY-MM-DD');
+          const debut = moment(`${aujourdhui} ${item.heureDebut}`);
+          const fin = moment(`${aujourdhui} ${item.heureFin}`);
           return now.isBetween(debut, fin);
         });
 
@@ -55,7 +56,7 @@ const PointageCoursActuel = () => {
   const fetchEleves = async (classeId, token) => {
     try {
       const { data: elevesClasse } = await axios.get(
-        `http://localhost:8080/api/classes/${classeId}/eleves`,
+        `${import.meta.env.VITE_BASE_URL}/api/classes/${classeId}/eleves`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -103,7 +104,7 @@ const PointageCoursActuel = () => {
       const token = cookies.get('token');
       const promises = Object.entries(pointage).map(([eleveId, statut]) =>
         axios.post(
-          'http://localhost:8080/api/pointage',
+          `${import.meta.env.VITE_BASE_URL}/api/pointage`,
           {
             eleveId: parseInt(eleveId),
             emploiDuTempsId: coursActuel.emploiDuTempsId,
