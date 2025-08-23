@@ -104,6 +104,26 @@ export async function deleteClasse(classeId) {
     throw error;
   }
 }
+
+export async function createUser(userData) {
+  const url = `${import.meta.env.VITE_BASE_URL}/utilisateurs`;
+  const token = await auth.currentUser.getIdToken();
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    const response = await axios.post(url, userData, config);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export const getProfesseurs = async () => {
   const token = await auth.currentUser.getIdToken();
   const url = `${import.meta.env.VITE_BASE_URL}/professeurs`;
