@@ -168,3 +168,54 @@ export const linkProfToCours = async (coursId, profId) => {
     throw new Error("Erreur lors de la liaison professeur-cours");
   }
 };
+
+export async function getTranchesHoraires() {
+  const url = `${import.meta.env.VITE_BASE_URL}/tranches-horaires`;
+  const token = await auth.currentUser.getIdToken();
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  try {
+    const response = await axios.get(url, config);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function getSalles() {
+  const url = `${import.meta.env.VITE_BASE_URL}/salles`;
+  const token = await auth.currentUser.getIdToken();
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  try {
+    const response = await axios.get(url, config);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function createEDT(edtData) {
+  const url = `${import.meta.env.VITE_BASE_URL}/emploi-du-temps`;
+  const token = await auth.currentUser.getIdToken();
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    const response = await axios.post(url, edtData, config);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

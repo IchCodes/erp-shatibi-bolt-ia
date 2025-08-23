@@ -8,6 +8,9 @@ import {
   deleteClasse,
   getProfesseurs,
   linkProfToCours,
+  getTranchesHoraires,
+  getSalles,
+  createEDT,
 } from "../../api";
 
 export default function SchedulingAdmin() {
@@ -28,19 +31,56 @@ export default function SchedulingAdmin() {
   const [newClasse, setNewClasse] = useState({
     nomClasse: "",
   });
+  const [tranchesHoraires, setTranchesHoraires] = useState([]);
+  const [salles, setSalles] = useState([]);
+  const [isEDTDialogOpen, setIsEDTDialogOpen] = useState(false);
+  const [newEDT, setNewEDT] = useState({
+    classeId: "",
+    coursId: "",
+    trancheHoraireId: "",
+    salleId: "",
+    jourSemaine: "MONDAY",
+  });
 
   useEffect(() => {
-    Promise.all([getNiveaux(), getClasses(), getProfesseurs()])
-      .then(([niveaux, classes, profs]) => {
-        console.log(classes);
+    Promise.all([
+      getNiveaux(),
+      getClasses(),
+      getProfesseurs(),
+      getTranchesHoraires(),
+      getSalles(),
+    ])
+      .then(([niveaux, classes, profs, tranches, salles]) => {
         setNiveauxCoran(niveaux);
         setClasses(classes);
         setProfesseurs(profs);
+        setTranchesHoraires(tranches);
+        setSalles(salles);
       })
       .catch((error) => {
         setError(error);
       });
   }, []);
+
+  const handleEDTSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await createEDT(newEDT);
+      setIsEDTDialogOpen(false);
+      setNewEDT({
+        classeId: "",
+        coursId: "",
+        trancheHoraireId: "",
+        salleId: "",
+        jourSemaine: "MONDAY",
+      });
+    } catch (err) {
+      setError("Erreur lors de la création de l'emploi du temps");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCoursSubmit = async (e) => {
     e.preventDefault();
@@ -297,7 +337,6 @@ export default function SchedulingAdmin() {
                 className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
                 <h4 className="font-medium">{classe.nomClasse}</h4>
-                
               </div>
             ))}
           </div>
@@ -387,6 +426,161 @@ export default function SchedulingAdmin() {
                     setIsClasseDialogOpen(false);
                     setNewClasse({ nomClasse: "" });
                   }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="bg-accent text-white px-4 py-2 rounded-md hover:bg-primary-dark"
+                  disabled={loading}
+                >
+                  {loading ? "Création..." : "Créer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Section Emploi du temps */}
+      <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-lg">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">
+            Gestion de l'emploi du temps
+          </h2>
+          <button
+            onClick={() => setIsEDTDialogOpen(true)}
+            className="bg-accent text-white px-4 py-2 rounded-md hover:bg-primary-dark"
+          >
+            Ajouter un créneau
+          </button>
+        </div>
+      </div>
+
+      {/* Modal EDT */}
+      {isEDTDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-semibold mb-4">
+              Ajouter un créneau d'emploi du temps
+            </h3>
+            <form onSubmit={handleEDTSubmit}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Classe
+                  </label>
+                  <select
+                    value={newEDT.classeId}
+                    onChange={(e) =>
+                      setNewEDT({ ...newEDT, classeId: Number(e.target.value) })
+                    }
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
+                  >
+                    <option value="">Sélectionner une classe</option>
+                    {classes.map((classe) => (
+                      <option key={classe.id} value={classe.id}>
+                        {classe.nomClasse}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cours
+                  </label>
+                  <select
+                    value={newEDT.coursId}
+                    onChange={(e) =>
+                      setNewEDT({ ...newEDT, coursId: Number(e.target.value) })
+                    }
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
+                  >
+                    <option value="">Sélectionner un cours</option>
+                    {niveauxCoran.map((cours) => (
+                      <option key={cours.id} value={cours.id}>
+                        {cours.nomCours}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tranche horaire
+                  </label>
+                  <select
+                    value={newEDT.trancheHoraireId}
+                    onChange={(e) =>
+                      setNewEDT({
+                        ...newEDT,
+                        trancheHoraireId: Number(e.target.value),
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
+                  >
+                    <option value="">Sélectionner une tranche horaire</option>
+                    {tranchesHoraires.map((tranche) => (
+                      <option key={tranche.id} value={tranche.id}>
+                        {tranche.heureDebut} - {tranche.heureFin}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Salle
+                  </label>
+                  <select
+                    value={newEDT.salleId}
+                    onChange={(e) =>
+                      setNewEDT({ ...newEDT, salleId: Number(e.target.value) })
+                    }
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
+                  >
+                    <option value="">Sélectionner une salle</option>
+                    {salles.map((salle) => (
+                      <option key={salle.id} value={salle.id}>
+                        {salle.nomSalle}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Jour
+                  </label>
+                  <select
+                    value={newEDT.jourSemaine}
+                    onChange={(e) =>
+                      setNewEDT({ ...newEDT, jourSemaine: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
+                  >
+                    <option value="MONDAY">Lundi</option>
+                    <option value="TUESDAY">Mardi</option>
+                    <option value="WEDNESDAY">Mercredi</option>
+                    <option value="THURSDAY">Jeudi</option>
+                    <option value="FRIDAY">Vendredi</option>
+                    <option value="SATURDAY">Samedi</option>
+                    <option value="SUNDAY">Dimanche</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsEDTDialogOpen(false)}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
                   Annuler
