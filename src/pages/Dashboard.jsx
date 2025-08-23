@@ -19,6 +19,7 @@ import Attendance from '../components/dashboard-sections/Attendance';
 import Discipline from '../components/dashboard-sections/Discipline';
 import School from '../components/dashboard-sections/School';
 import Scheduling from '../components/dashboard-sections/Scheduling';
+import SchedulingAdmin from '../components/dashboard-sections/SchedulingAdmin';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -65,6 +66,8 @@ function Dashboard() {
         return <Discipline />;
       case "school":
         return <School />;
+      case "admin":
+        return <SchedulingAdmin />;
       default:
         return null;
     }
@@ -79,6 +82,7 @@ function Dashboard() {
       { name: "Présences", section: "attendance", icon: ClipboardDocumentCheckIcon },
       { name: "Discipline", section: "discipline", icon: ExclamationTriangleIcon },
       { name: "École", section: "school", icon: BuildingLibraryIcon },
+      { name: "ADMIN - Emploi du temps", section: "admin", icon: CalendarIcon },
     ];
 
     switch (role) {
