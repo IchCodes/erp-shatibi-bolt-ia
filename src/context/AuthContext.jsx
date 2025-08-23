@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, getIdToken } from 'firebase/auth';
-import Cookies from 'universal-cookie';
-import { auth } from '../firebase';
+import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged, getIdToken } from "firebase/auth";
+import Cookies from "universal-cookie";
+import { auth } from "../firebase";
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -15,16 +15,19 @@ export const AuthProvider = ({ children }) => {
 
   const fetchRole = async (token) => {
     try {
-      const res = await fetch('http://localhost:8080/api/utilisateurs/profile', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/utilisateurs/profile`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const data = await res.json();
-      console.log(data)
+      console.log(data);
       setRole(data.role);
       setUser(data); // On garde les données du backend
-      cookies.set('role', data.role, { path: '/', maxAge: 3600 });
+      cookies.set("role", data.role, { path: "/", maxAge: 3600 });
     } catch (err) {
-      console.error('Erreur lors de la récupération du rôle :', err);
+      console.error("Erreur lors de la récupération du rôle :", err);
     }
   };
 
@@ -32,13 +35,13 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const token = await getIdToken(firebaseUser);
-        cookies.set('token', token, { path: '/', maxAge: 3600 });
+        cookies.set("token", token, { path: "/", maxAge: 3600 });
         await fetchRole(token); // On ne met plus à jour user avec firebaseUser
       } else {
         setUser(null);
         setRole(null);
-        cookies.remove('token', { path: '/' });
-        cookies.remove('role', { path: '/' });
+        cookies.remove("token", { path: "/" });
+        cookies.remove("role", { path: "/" });
       }
       setLoading(false);
     });

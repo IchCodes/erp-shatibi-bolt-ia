@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import Cookies from 'universal-cookie';
+import Cookies from "universal-cookie";
 
 const Scheduling = () => {
   const { user, role, loading } = useAuth();
@@ -9,13 +9,13 @@ const Scheduling = () => {
 
   const translateDay = (day) => {
     const translations = {
-      "SUNDAY": "Dimanche",
-      "MONDAY": "Lundi",
-      "TUESDAY": "Mardi",
-      "WEDNESDAY": "Mercredi",
-      "THURSDAY": "Jeudi",
-      "FRIDAY": "Vendredi",
-      "SATURDAY": "Samedi"
+      SUNDAY: "Dimanche",
+      MONDAY: "Lundi",
+      TUESDAY: "Mardi",
+      WEDNESDAY: "Mercredi",
+      THURSDAY: "Jeudi",
+      FRIDAY: "Vendredi",
+      SATURDAY: "Samedi",
     };
     return translations[day] || day;
   };
@@ -24,11 +24,16 @@ const Scheduling = () => {
     const fetchSchedule = async () => {
       if (role === "ELEVE" || role === "PROFESSEUR") {
         try {
-          const token = cookies.get('token');
-          const url = role === "ELEVE" 
-            ? `http://localhost:8080/api/emploi-du-temps/eleve/${user.id}`
-            : `http://localhost:8080/api/emploi-du-temps/professeur/${user.id}`;
-          
+          const token = cookies.get("token");
+          const url =
+            role === "ELEVE"
+              ? `${import.meta.env.VITE_BASE_URL}/emploi-du-temps/eleve/${
+                  user.id
+                }`
+              : `${import.meta.env.VITE_BASE_URL}/emploi-du-temps/professeur/${
+                  user.id
+                }`;
+
           const response = await fetch(url, {
             headers: {
               Authorization: `Bearer ${token}`,
