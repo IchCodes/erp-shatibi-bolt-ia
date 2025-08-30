@@ -2,6 +2,7 @@ import React from 'react';
 import { FiGrid, FiHome, FiBook, FiSettings, FiBell } from 'react-icons/fi';
 import CourseCard from './components/CourseCard';
 import { useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const navigate = useNavigate();

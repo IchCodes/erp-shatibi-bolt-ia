@@ -20,6 +20,7 @@ import Discipline from '../components/dashboard-sections/Discipline';
 import School from '../components/dashboard-sections/School';
 import Scheduling from '../components/dashboard-sections/Scheduling';
 import SchedulingAdmin from '../components/dashboard-sections/SchedulingAdmin';
+import { Toaster } from 'react-hot-toast';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -105,6 +106,7 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-primary flex">
+      <Toaster />
       {/* Sidebar */}
       <div className="w-16 hover:w-64 bg-white shadow-lg p-2 transition-all duration-300 ease-in-out group flex flex-col justify-between">
         <div>

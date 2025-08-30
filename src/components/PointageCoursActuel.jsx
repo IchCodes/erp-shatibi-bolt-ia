@@ -3,6 +3,9 @@ import axios from 'axios';
 import Cookies from 'universal-cookie';
 import moment from 'moment';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-hot-toast';
+
+const successSound = new Audio('/success.mp3');
 
 const PointageCoursActuel = () => {
   const now = moment('2025-05-18 15:30:00');
@@ -118,10 +121,31 @@ const PointageCoursActuel = () => {
         )
       );
       await Promise.all(promises);
-      alert('Pointage effectué !');
+
+      successSound.play();
+      toast.success('Pointage effectué avec succès !', {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#10B981',
+          color: '#fff',
+          padding: '16px',
+        },
+        icon: '✅',
+      });
+
     } catch (err) {
       console.error('Erreur lors du pointage :', err);
-      alert('Erreur pendant le pointage.');
+      toast.error('Erreur pendant le pointage.', {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#EF4444',
+          color: '#fff',
+          padding: '16px',
+        },
+        icon: '❌',
+      });
     }
   };
 
