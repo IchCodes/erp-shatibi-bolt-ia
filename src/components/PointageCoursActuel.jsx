@@ -5,7 +5,6 @@ import moment from 'moment';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
-const successSound = new Audio('/success.mp3');
 
 const PointageCoursActuel = () => {
   const now = moment('2025-05-18 15:30:00');
@@ -122,7 +121,6 @@ const PointageCoursActuel = () => {
       );
       await Promise.all(promises);
 
-      successSound.play();
       toast.success('Pointage effectué avec succès !', {
         duration: 3000,
         position: 'top-center',
