@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 
 
 const PointageCoursActuel = () => {
-  const now = moment('2025-05-18 15:30:00');
+  const now = moment();
   const [coursActuel, setCoursActuel] = useState(null);
   const [tousLesCours, setTousLesCours] = useState([]);
   const [eleves, setEleves] = useState([]);
