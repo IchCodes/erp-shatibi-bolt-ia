@@ -20,7 +20,7 @@ const PointageCoursActuel = () => {
         if (!user?.id || role !== 'PROFESSEUR') return;
 
         const { data: emploiDuTemps } = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/emploi-du-temps/professeur/${user.id}`,
+          `${import.meta.env.VITE_BASE_URL}/emploi-du-temps/professeur/${user.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ const PointageCoursActuel = () => {
   const fetchEleves = async (classeId, token) => {
     try {
       const { data: elevesClasse } = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/classes/${classeId}/eleves`,
+        `${import.meta.env.VITE_BASE_URL}/classes/${classeId}/eleves`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -104,7 +104,7 @@ const PointageCoursActuel = () => {
       const token = cookies.get('token');
       const promises = Object.entries(pointage).map(([eleveId, statut]) =>
         axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/pointage`,
+          `${import.meta.env.VITE_BASE_URL}/pointage`,
           {
             eleveId: parseInt(eleveId),
             emploiDuTempsId: coursActuel.emploiDuTempsId,
