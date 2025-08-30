@@ -219,3 +219,21 @@ export async function createEDT(edtData) {
     throw error;
   }
 }
+
+export async function getPointagesProfesseur(userId) {
+  const url = `${import.meta.env.VITE_BASE_URL}/pointage/professeur/${userId}/pointages`;
+  const token = await auth.currentUser.getIdToken();
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  try {
+    const response = await axios.get(url, config);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+

@@ -4,7 +4,7 @@ import Cookies from 'universal-cookie';
 import moment from 'moment';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-
+import { getPointagesProfesseur, getNiveaux } from '../api';
 
 const PointageCoursActuel = () => {
   const now = moment();
@@ -12,15 +12,22 @@ const PointageCoursActuel = () => {
   const [tousLesCours, setTousLesCours] = useState([]);
   const [eleves, setEleves] = useState([]);
   const [pointage, setPointage] = useState({});
+  const [pointagesEffectues, setPointagesEffectues] = useState({});
+  const [listeCours, setListeCours] = useState([]);
   const { user, role, loading } = useAuth();
   const cookies = new Cookies();
 
   useEffect(() => {
-    const fetchCoursEtEleves = async () => {
+    const fetchCoursEtPointages = async () => {
       try {
         const token = cookies.get('token');
         if (!user?.id || role !== 'PROFESSEUR') return;
 
+        const coursResponse = await getNiveaux();
+        setListeCours(coursResponse || []);
+
+        const pointages = await getPointagesProfesseur(user.id);
+        setPointagesEffectues(pointages || {});
         const { data: emploiDuTemps } = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/emploi-du-temps/professeur/${user.id}`,
           {
@@ -48,11 +55,11 @@ const PointageCoursActuel = () => {
           await fetchEleves(actuel.classeId, token);
         }
       } catch (err) {
-        console.error('Erreur récupération cours ou élèves :', err);
+        console.error('Erreur récupération cours ou pointages :', err);
       }
     };
 
-    if (!loading) fetchCoursEtEleves();
+    if (!loading) fetchCoursEtPointages();
   }, [user, role, loading]);
 
   const fetchEleves = async (classeId, token) => {
@@ -99,6 +106,16 @@ const PointageCoursActuel = () => {
       ...prev,
       [eleveId]: prev[eleveId] === 'ABSENT' ? 'PRESENT' : 'ABSENT',
     }));
+  };
+
+  const isPointageEffectue = (coursActuel) => {
+    if (!coursActuel) return false;
+    const heures = `${coursActuel.heureDebut} - ${coursActuel.heureFin}`;
+    const coursCorrespondant = listeCours.find(c => c.nomCours === coursActuel.matiereNom);
+    console.log('Cours correspondant:', coursCorrespondant);
+    console.log('Matière actuelle:', coursActuel.matiereNom);
+    if (!coursCorrespondant) return false;
+    return pointagesEffectues[coursCorrespondant.id]?.[heures] === true;
   };
 
   const handleSubmit = async () => {
@@ -169,31 +186,40 @@ const PointageCoursActuel = () => {
           <h2 className="text-xl font-bold mb-4">
             Pointage - {coursActuel.matiereNom} avec {coursActuel.classeNom}
           </h2>
-          <ul className="divide-y">
-            {eleves.map((eleve) => (
-              <li key={eleve.id} className="py-2 flex justify-between items-center">
-                <span>
-                  {eleve.prenom} {eleve.nom}
-                </span>
+
+          {isPointageEffectue(coursActuel) ? (
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+              Pointage déjà effectué pour ce cours
+            </div>
+          ) : (
+            <>
+              <ul className="divide-y">
+                {eleves.map((eleve) => (
+                  <li key={eleve.id} className="py-2 flex justify-between items-center">
+                    <span>
+                      {eleve.prenom} {eleve.nom}
+                    </span>
+                    <button
+                      onClick={() => toggleStatut(eleve.id)}
+                      className={`px-3 py-1 rounded text-white ${
+                        pointage[eleve.id] === 'ABSENT' ? 'bg-red-500' : 'bg-green-500'
+                      }`}
+                    >
+                      {pointage[eleve.id]}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 text-right">
                 <button
-                  onClick={() => toggleStatut(eleve.id)}
-                  className={`px-3 py-1 rounded text-white ${
-                    pointage[eleve.id] === 'ABSENT' ? 'bg-red-500' : 'bg-green-500'
-                  }`}
+                  onClick={handleSubmit}
+                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
                 >
-                  {pointage[eleve.id]}
+                  Valider le pointage
                 </button>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-6 text-right">
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-            >
-              Valider le pointage
-            </button>
           </div>
+            </>
+          )}
         </>
       ) : (
         <p className="p-4">Aucun cours sélectionné.</p>
