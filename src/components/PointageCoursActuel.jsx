@@ -194,9 +194,21 @@ const PointageCoursActuel = () => {
           </h2>
 
           {isPointageEffectue(coursActuel) ? (
-            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-              Pointage déjà effectué pour ce cours
-            </div>
+            <>
+              <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+                Pointage déjà effectué pour ce cours
+              </div>
+              <div>
+                <button
+                  onClick={() =>
+                    window.open("https://tally.so/r/nGWpMz", "_blank")
+                  }
+                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                >
+                  Signaler un problème
+                </button>
+              </div>
+            </>
           ) : (
             <>
               <ul className="divide-y">
