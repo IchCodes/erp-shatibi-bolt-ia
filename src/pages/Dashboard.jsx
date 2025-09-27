@@ -20,6 +20,7 @@ import Discipline from '../components/dashboard-sections/Discipline';
 import School from '../components/dashboard-sections/School';
 import Scheduling from '../components/dashboard-sections/Scheduling';
 import SchedulingAdmin from '../components/dashboard-sections/SchedulingAdmin';
+import AttendancesAdmin from '../components/dashboard-sections/AttendancesAdmin';
 import { Toaster } from 'react-hot-toast';
 
 function Dashboard() {
@@ -69,6 +70,8 @@ function Dashboard() {
         return <School />;
       case "admin":
         return <SchedulingAdmin />;
+      case "admin-absences":
+        return <AttendancesAdmin />;
       default:
         return null;
     }
@@ -84,6 +87,7 @@ function Dashboard() {
       { name: "Discipline", section: "discipline", icon: ExclamationTriangleIcon },
       { name: "École", section: "school", icon: BuildingLibraryIcon },
       { name: "ADMIN - Emploi du temps", section: "admin", icon: CalendarIcon },
+      { name: "ADMIN - absences", section: "admin-absences", icon: CalendarIcon },
     ];
 
     switch (role) {
