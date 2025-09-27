@@ -191,6 +191,7 @@ const PointageCoursActuel = () => {
         <>
           <h2 className="text-xl font-bold mb-4">
             Pointage - {coursActuel.matiereNom} avec {coursActuel.classeNom}
+            <span className="text-blue-600 ml-2">({eleves.length} élèves)</span>
           </h2>
 
           {isPointageEffectue(coursActuel) ? (
