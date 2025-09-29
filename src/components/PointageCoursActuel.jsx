@@ -14,6 +14,7 @@ const PointageCoursActuel = () => {
   const [pointage, setPointage] = useState({});
   const [pointagesEffectues, setPointagesEffectues] = useState({});
   const [listeCours, setListeCours] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, role, loading } = useAuth();
   const cookies = new Cookies();
 
@@ -125,6 +126,7 @@ const PointageCoursActuel = () => {
   };
 
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
       const token = cookies.get("token");
       const promises = Object.entries(pointage).map(([eleveId, statut]) =>
@@ -166,6 +168,8 @@ const PointageCoursActuel = () => {
         },
         icon: "❌",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -237,9 +241,14 @@ const PointageCoursActuel = () => {
               <div className="mt-6 text-right">
                 <button
                   onClick={handleSubmit}
-                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                  disabled={isSubmitting}
+                  className={`px-6 py-2 rounded text-white ${
+                    isSubmitting
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
                 >
-                  Valider le pointage
+                  {isSubmitting ? "Validation en cours..." : "Valider le pointage"}
                 </button>
               </div>
             </>
